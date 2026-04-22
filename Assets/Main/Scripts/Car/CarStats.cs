@@ -5,8 +5,8 @@ public class CarStats : MonoBehaviour
 {
     public CarDataSO config;
 
-    public float CurrentHealth { get; private set; }
-    public float CurrentFuel { get; private set; }
+    [field: SerializeField] public float CurrentHealth { get; private set; }
+    [field: SerializeField] public float CurrentFuel { get; private set; }
 
     public event Action<float> OnHealthChanged;
     public event Action<float, Vector3> OnDamageReceived;
@@ -41,15 +41,4 @@ public class CarStats : MonoBehaviour
         OnFuelChanged?.Invoke(CurrentFuel);
     }
     public bool HasFuel() => CurrentFuel > 0f;
-    private void OnCollisionEnter(Collision collision)
-    {
-        float impact = collision.relativeVelocity.magnitude;
-        float threshold = 5f;
-
-        if (impact > threshold)
-        {
-            float damage = (impact - threshold) * 2f;
-            TakeDamage(damage, collision.contacts[0].point);
-        }
-    }
 }

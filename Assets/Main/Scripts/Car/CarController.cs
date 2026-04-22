@@ -31,7 +31,7 @@ public class CarController : MonoBehaviour
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
-        stats = GetComponent<CarStats>();
+        stats = GetComponentInChildren<CarStats>();
         rb.centerOfMass += data.centerOfMassOffset;
     }
 
@@ -72,6 +72,10 @@ public class CarController : MonoBehaviour
     {
         rearLeftWheelCollider.motorTorque = verticalInput * data.motorForce;
         rearRightWheelCollider.motorTorque = verticalInput * data.motorForce;
+
+        // Consume fuel only when accelerating or reversing
+        if (verticalInput != 0f && stats != null)
+            stats.ConsumeFuel(data.fuelConsumptionRate * Time.fixedDeltaTime);
 
         if (verticalInput == 0f && !isBraking)
         {
@@ -155,5 +159,16 @@ public class CarController : MonoBehaviour
         UpdateSingleWheel(frontRightWheelCollider, frontRightWheelTransform);
         UpdateSingleWheel(rearLeftWheelCollider, rearLeftWheelTransform);
         UpdateSingleWheel(rearRightWheelCollider, rearRightWheelTransform);
+    }
+    private void OnCollisionEnter(Collision collision)
+    {
+        float impact = collision.relativeVelocity.magnitude;
+        float threshold = 5f;
+
+        if (impact > threshold)
+        {
+            float damage = (impact - threshold) * 2f;
+            stats.TakeDamage(damage, collision.contacts[0].point);
+        }
     }
 }

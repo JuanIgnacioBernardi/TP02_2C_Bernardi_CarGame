@@ -6,6 +6,10 @@ public class CameraFollow : MonoBehaviour
     [Header("Camera Data")]
     [SerializeField] private CameraDataSO cameraData;
 
+    [Header("Target")]
+    public Transform target;
+    public Transform cockpitPoint;
+
     private bool _isFirstPerson = false;
     private float _yaw;
     private float _pitch = 0f;
@@ -18,10 +22,10 @@ public class CameraFollow : MonoBehaviour
     void Start()
     {
         _cam = GetComponent<Camera>();
-        if (cameraData.target != null)
+        if (target != null)
         {
-            _targetRb = cameraData.target.GetComponent<Rigidbody>();
-            _yaw = cameraData.target.eulerAngles.y;
+            _targetRb = target.GetComponent<Rigidbody>();
+            _yaw = target.eulerAngles.y;
         }
 
         Cursor.lockState = CursorLockMode.Locked;
@@ -35,7 +39,7 @@ public class CameraFollow : MonoBehaviour
     }
     void LateUpdate()
     {
-        if (cameraData.target == null) return;
+        if (target == null) return;
         if (_isFirstPerson) HandleFirstPerson();
         else HandleThirdPerson();
     }
@@ -54,7 +58,7 @@ public class CameraFollow : MonoBehaviour
     }
     void HandleFirstPerson()
     {
-        Transform anchor = cameraData.cockpitPoint != null ? cameraData.cockpitPoint : cameraData.target;
+        Transform anchor = cockpitPoint != null ? cockpitPoint : target;
         transform.position = anchor.position;
         transform.rotation = Quaternion.Euler(_pitch, _yaw, 0f);
     }
@@ -62,7 +66,7 @@ public class CameraFollow : MonoBehaviour
     {
         // La cámara orbita según el mouse, sin auto-return
         Quaternion camRotation = Quaternion.Euler(_pitch, _yaw, 0f);
-        Vector3 desiredPosition = cameraData.target.position + camRotation * cameraData.offset;
+        Vector3 desiredPosition = target.position + camRotation * cameraData.offset;
 
         transform.position = Vector3.SmoothDamp(
             transform.position,
@@ -72,7 +76,7 @@ public class CameraFollow : MonoBehaviour
         );
 
         // Siempre mira al auto
-        Vector3 lookAt = cameraData.target.position + Vector3.up * 1f;
+        Vector3 lookAt = target.position + Vector3.up * 1f;
         transform.rotation = Quaternion.LookRotation(lookAt - transform.position);
     }
     void HandleFOV()

@@ -3,10 +3,6 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "CameraDataSO", menuName = "Scriptable Objects/CameraDataSO")]
 public class CameraDataSO : ScriptableObject
 {
-    [Header("Target")]
-    public Transform target;
-    public Transform cockpitPoint;
-
     [Header("Third Person")]
     public Vector3 offset = new Vector3(0f, 3f, -7f);
     public float positionSmoothTime = 0.15f;

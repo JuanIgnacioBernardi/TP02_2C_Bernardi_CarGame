@@ -15,6 +15,9 @@ public class CarController : MonoBehaviour
     public Transform rearLeftWheelTransform;
     public Transform rearRightWheelTransform;
 
+    [Header("Config")]
+    [SerializeField]private CarDataSO data;
+
     private float horizontalInput;
     private float verticalInput;
     private float smoothedSteering;
@@ -22,11 +25,13 @@ public class CarController : MonoBehaviour
     private float currentBrakeForce;
     private bool isBraking;
     private Rigidbody rb;
-    [SerializeField]private CarDataSO data;
+    private CarStats stats;
 
+    public float CurrentSpeed => rb != null ? rb.linearVelocity.magnitude : 0f;
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
+        stats = GetComponent<CarStats>();
         rb.centerOfMass += data.centerOfMassOffset;
     }
 

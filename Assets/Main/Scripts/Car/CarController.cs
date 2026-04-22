@@ -3,26 +3,6 @@ using UnityEngine.InputSystem;
 
 public class CarController : MonoBehaviour
 {
-    [Header("Motor")]
-    public float motorForce = 1500f;
-    public float brakeForce = 3000f;
-    public float engineBraking = 300f;
-
-    [Header("Steering")]
-    public float maxSteeringAngle = 45f;
-    public float minSteeringAngle = 10f;
-    public float speedForMinSteering = 30f;
-    public float steerSmoothSpeed = 8f;
-
-    [Header("Downforce")]
-    public float downforceAmount = 100f;
-
-    [Header("Anti-Roll")]
-    public float antiRollForce = 5000f;
-
-    [Header("Setup")]
-    public Vector3 centerOfMassOffset = new Vector3(0f, -0.5f, 0f);
-
     [Header("Wheels - Colliders")]
     public WheelCollider frontLeftWheelCollider;
     public WheelCollider frontRightWheelCollider;
@@ -42,11 +22,12 @@ public class CarController : MonoBehaviour
     private float currentBrakeForce;
     private bool isBraking;
     private Rigidbody rb;
+    [SerializeField]private CarDataSO data;
 
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
-        rb.centerOfMass += centerOfMassOffset;
+        rb.centerOfMass += data.centerOfMassOffset;
     }
 
     private void Update()
@@ -84,19 +65,19 @@ public class CarController : MonoBehaviour
     }
     private void HandleMotor()
     {
-        rearLeftWheelCollider.motorTorque = verticalInput * motorForce;
-        rearRightWheelCollider.motorTorque = verticalInput * motorForce;
+        rearLeftWheelCollider.motorTorque = verticalInput * data.motorForce;
+        rearRightWheelCollider.motorTorque = verticalInput * data.motorForce;
 
         if (verticalInput == 0f && !isBraking)
         {
-            frontLeftWheelCollider.brakeTorque = engineBraking;
-            frontRightWheelCollider.brakeTorque = engineBraking;
-            rearLeftWheelCollider.brakeTorque = engineBraking;
-            rearRightWheelCollider.brakeTorque = engineBraking;
+            frontLeftWheelCollider.brakeTorque = data.engineBraking;
+            frontRightWheelCollider.brakeTorque = data.engineBraking;
+            rearLeftWheelCollider.brakeTorque = data.engineBraking;
+            rearRightWheelCollider.brakeTorque = data.engineBraking;
         }
         else
         {
-            currentBrakeForce = isBraking ? brakeForce : 0f;
+            currentBrakeForce = isBraking ? data.brakeForce : 0f;
             ApplyBraking();
         }
     }
@@ -110,10 +91,10 @@ public class CarController : MonoBehaviour
     private void HandleSteering()
     {
         float speed = rb.linearVelocity.magnitude;
-        float speedRatio = Mathf.Clamp01(speed / speedForMinSteering);
-        float dynamicAngle = Mathf.Lerp(maxSteeringAngle, minSteeringAngle, speedRatio);
+        float speedRatio = Mathf.Clamp01(speed / data.speedForMinSteering);
+        float dynamicAngle = Mathf.Lerp(data.maxSteeringAngle, data.minSteeringAngle, speedRatio);
 
-        smoothedSteering = Mathf.Lerp(smoothedSteering, horizontalInput, Time.fixedDeltaTime * steerSmoothSpeed);
+        smoothedSteering = Mathf.Lerp(smoothedSteering, horizontalInput, Time.fixedDeltaTime * data.steerSmoothSpeed);
 
         currentSteeringAngle = dynamicAngle * smoothedSteering;
         frontLeftWheelCollider.steerAngle = currentSteeringAngle;
@@ -122,7 +103,7 @@ public class CarController : MonoBehaviour
     private void ApplyDownforce()
     {
         float speed = rb.linearVelocity.magnitude;
-        rb.AddForce(-transform.up * downforceAmount * speed);
+        rb.AddForce(-transform.up * data.downforceAmount * speed);
     }
     private void ApplyAntiRoll()
     {
@@ -144,7 +125,7 @@ public class CarController : MonoBehaviour
         if (rightGrounded)
             travelRight = (-rightWheel.transform.InverseTransformPoint(hit.point).y - rightWheel.radius) / rightWheel.suspensionDistance;
 
-        float force = (travelLeft - travelRight) * antiRollForce;
+        float force = (travelLeft - travelRight) * data.antiRollForce;
 
         if (leftGrounded)
             rb.AddForceAtPosition(leftWheel.transform.up * -force, leftWheel.transform.position);

@@ -1,111 +1,88 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class CameraFollow : MonoBehaviour
 {
-    [Header("Target")]
-    public Transform target;
+    [Header("Camera Data")]
+    [SerializeField] private CameraDataSO cameraData;
 
-    [Header("Position Settings")]
-    public Vector3 offset = new Vector3(0f, 3f, -7f);
-    public float positionSmoothTime = 0.15f;
-
-    [Header("Rotation Settings")]
-    public float rotationSmoothTime = 0.1f;
-    public float pitchAngle = 10f; // downward tilt
-
-    [Header("Look Ahead")]
-    public float lookAheadDistance = 4f;  // how much does the camera "advance"
-    public float lookAheadSmoothTime = 0.3f;
-
-    [Header("Field of View")]
-    public float baseFOV = 60f;
-    public float maxFOVIncrease = 15f;    // Extra FOV at high speed
-    public float fovSmoothTime = 0.3f;
-    public float speedForMaxFOV = 50f;    // speed (m/s) for maximum FOV
+    private bool _isFirstPerson = false;
+    private float _yaw;
+    private float _pitch = 0f;
 
     private Vector3 _currentVelocity;
-    private float _currentRotationVelocity;
-    private Vector3 _lookAheadVelocity;
-    private Vector3 _currentLookAhead;
     private float _currentFOVVelocity;
+
     private Camera _cam;
     private Rigidbody _targetRb;
-
     void Start()
     {
         _cam = GetComponent<Camera>();
-        if (target != null)
-            _targetRb = target.GetComponent<Rigidbody>();
+        if (cameraData.target != null)
+        {
+            _targetRb = cameraData.target.GetComponent<Rigidbody>();
+            _yaw = cameraData.target.eulerAngles.y;
+        }
+
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
-
-    void LateUpdate()
+    void Update()
     {
-        if (target == null) return;
-
-        HandlePosition();
-        HandleRotation();
+        HandleToggle();
+        HandleMouseLook();
         HandleFOV();
     }
-
-    void HandlePosition()
+    void LateUpdate()
     {
-        // Look ahead: The camera moves forward in the direction the car is traveling.
-        Vector3 lookAheadTarget = target.forward * lookAheadDistance;
-        _currentLookAhead = Vector3.SmoothDamp(
-            _currentLookAhead,
-            lookAheadTarget,
-            ref _lookAheadVelocity,
-            lookAheadSmoothTime
-        );
-        // Desired position = behind the car + offset + look ahead
-        Vector3 desiredPosition = target.TransformPoint(offset) + _currentLookAhead;
+        if (cameraData.target == null) return;
+        if (_isFirstPerson) HandleFirstPerson();
+        else HandleThirdPerson();
+    }
+    void HandleToggle()
+    {
+        if (Keyboard.current != null && Keyboard.current.vKey.wasPressedThisFrame)
+            _isFirstPerson = !_isFirstPerson;
+    }
+    void HandleMouseLook()
+    {
+        if (Mouse.current == null) return;
 
-        // Suavizado de posición
+        _yaw += Mouse.current.delta.x.ReadValue() * cameraData.mouseSensitivity;
+        _pitch -= Mouse.current.delta.y.ReadValue() * cameraData.mouseSensitivity;
+        _pitch = Mathf.Clamp(_pitch, cameraData.minPitch, cameraData.maxPitch);
+    }
+    void HandleFirstPerson()
+    {
+        Transform anchor = cameraData.cockpitPoint != null ? cameraData.cockpitPoint : cameraData.target;
+        transform.position = anchor.position;
+        transform.rotation = Quaternion.Euler(_pitch, _yaw, 0f);
+    }
+    void HandleThirdPerson()
+    {
+        // La cámara orbita según el mouse, sin auto-return
+        Quaternion camRotation = Quaternion.Euler(_pitch, _yaw, 0f);
+        Vector3 desiredPosition = cameraData.target.position + camRotation * cameraData.offset;
+
         transform.position = Vector3.SmoothDamp(
             transform.position,
             desiredPosition,
             ref _currentVelocity,
-            positionSmoothTime
+            cameraData.positionSmoothTime
         );
-    }
-    void HandleRotation()
-    {
-        // We looked towards the car + a little look ahead
-        Vector3 lookAtTarget = target.position + _currentLookAhead;
-        Vector3 direction = lookAtTarget - transform.position;
 
-        if (direction == Vector3.zero) return;
-
-        Quaternion desiredRotation = Quaternion.LookRotation(direction);
-
-        // We apply a fixed pitch downwards
-        desiredRotation *= Quaternion.Euler(pitchAngle, 0f, 0f);
-
-        // Rotation smoothing
-        float currentY = transform.eulerAngles.y;
-        float desiredY = desiredRotation.eulerAngles.y;
-        float smoothedY = Mathf.SmoothDampAngle(currentY, desiredY, ref _currentRotationVelocity, rotationSmoothTime);
-
-        transform.rotation = Quaternion.Euler(
-            desiredRotation.eulerAngles.x,
-            smoothedY,
-            0f
-        );
+        // Siempre mira al auto
+        Vector3 lookAt = cameraData.target.position + Vector3.up * 1f;
+        transform.rotation = Quaternion.LookRotation(lookAt - transform.position);
     }
     void HandleFOV()
     {
         if (_cam == null) return;
-
-        // We calculate the car's current speed.
         float speed = _targetRb != null ? _targetRb.linearVelocity.magnitude : 0f;
-        float speedRatio = Mathf.Clamp01(speed / speedForMaxFOV);
+        float targetFOV = _isFirstPerson
+            ? cameraData.firstPersonFOV
+            : cameraData.baseFOV + cameraData.maxFOVIncrease * Mathf.Clamp01(speed / cameraData.speedForMaxFOV);
 
-        float desiredFOV = baseFOV + (maxFOVIncrease * speedRatio);
-        _cam.fieldOfView = Mathf.SmoothDamp(
-            _cam.fieldOfView,
-            desiredFOV,
-            ref _currentFOVVelocity,
-            fovSmoothTime
-        );
+        _cam.fieldOfView = Mathf.SmoothDamp(_cam.fieldOfView, targetFOV, ref _currentFOVVelocity, cameraData.fovSmoothTime);
     }
 }

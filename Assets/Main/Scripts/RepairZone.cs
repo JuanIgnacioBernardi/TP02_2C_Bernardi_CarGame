@@ -6,7 +6,11 @@ public class RepairZone : MonoBehaviour
 
     private CarStats _carInside;
     private bool _fullyInside;
-
+    private Collider _zoneCollider;
+    private void Awake()
+    {
+        _zoneCollider = GetComponent<Collider>();
+    }
     private void Update()
     {
         if (_fullyInside && _carInside != null)
@@ -14,7 +18,8 @@ public class RepairZone : MonoBehaviour
     }
     private void OnTriggerStay(Collider other)
     {
-        if (other.TryGetComponent<CarStats>(out var stats))
+        var stats = other.GetComponentInParent<CarStats>();
+        if (stats != null)
         {
             _carInside = stats;
             _fullyInside = IsFullyInside(other);
@@ -30,7 +35,13 @@ public class RepairZone : MonoBehaviour
     }
     private bool IsFullyInside(Collider other)
     {
-        Bounds zone = GetComponent<Collider>().bounds;
-        return zone.Contains(other.bounds.min) && zone.Contains(other.bounds.max);
+        Bounds zone = _zoneCollider.bounds;
+        Bounds car = other.bounds;
+
+        Debug.Log($"Zone: {zone.min} / {zone.max}");
+        Debug.Log($"Car:  {car.min} / {car.max}");
+        Debug.Log($"MinIn: {zone.Contains(car.min)} | MaxIn: {zone.Contains(car.max)}");
+
+        return zone.Contains(car.min) && zone.Contains(car.max);
     }
 }

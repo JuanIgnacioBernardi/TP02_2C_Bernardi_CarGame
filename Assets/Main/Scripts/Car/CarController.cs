@@ -162,7 +162,8 @@ public class CarController : MonoBehaviour
     }
     private void OnCollisionEnter(Collision collision)
     {
-        float impact = collision.relativeVelocity.magnitude;
+        Vector3 horizontalVelocity = Vector3.ProjectOnPlane(collision.relativeVelocity, Vector3.up);
+        float impact = horizontalVelocity.magnitude;
         float threshold = 5f;
 
         if (impact > threshold)

@@ -22,7 +22,7 @@ public class UIManager : MonoBehaviour
 
     private CarStats stats;
     private CarController carController;
-    private void Start()
+    private void Awake()
     {
         stats = FindFirstObjectByType<CarStats>();
         carController = FindFirstObjectByType<CarController>();
@@ -31,6 +31,17 @@ public class UIManager : MonoBehaviour
         {
             stats.OnHealthChanged += SetHealthTarget;
             stats.OnFuelChanged += SetFuelTarget;
+        }
+    }
+    private void Start()
+    {
+        if (stats != null)
+        {
+            SetHealthTarget(stats.config.maxHealth, stats.CurrentHealth);
+            SetFuelTarget(stats.config.maxFuel, stats.CurrentFuel);
+
+            if (fillHealthBar != null) fillHealthBar.fillAmount = targetHealthFill;
+            if (fillTankBar != null) fillTankBar.fillAmount = targetFuelFill;
         }
     }
     private void OnDisable()

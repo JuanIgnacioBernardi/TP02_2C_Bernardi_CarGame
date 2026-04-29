@@ -26,8 +26,12 @@ public class ExplosiveMine : MonoBehaviour
         stats.TakeDamage(damage, transform.position);
 
         if (explosionEffect != null)
-            Destroy(Instantiate(explosionEffect, transform.position, Quaternion.identity), 2f);
-
+        {
+            Vector3 effectPos = transform.position + Vector3.up * 1.2f;
+            GameObject effect = Instantiate(explosionEffect, effectPos, Quaternion.identity);
+            effect.transform.localScale = Vector3.one * 3f;
+            Destroy(effect, 2f);
+        }
         visual.enabled = false;
         col.enabled = false;
 

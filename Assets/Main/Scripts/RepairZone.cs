@@ -38,10 +38,6 @@ public class RepairZone : MonoBehaviour
         Bounds zone = _zoneCollider.bounds;
         Bounds car = other.bounds;
 
-        Debug.Log($"Zone: {zone.min} / {zone.max}");
-        Debug.Log($"Car:  {car.min} / {car.max}");
-        Debug.Log($"MinIn: {zone.Contains(car.min)} | MaxIn: {zone.Contains(car.max)}");
-
         return zone.Contains(car.min) && zone.Contains(car.max);
     }
 }

@@ -38,6 +38,9 @@ public class CarController : MonoBehaviour
     private void Update()
     {
         GetInput();
+
+        if (Keyboard.current.rKey.wasPressedThisFrame)
+            CheckpointManager.Instance?.RespawnAtLastCheckpoint(rb);
     }
 
     private void FixedUpdate()
@@ -72,6 +75,18 @@ public class CarController : MonoBehaviour
     {
         rearLeftWheelCollider.motorTorque = verticalInput * data.motorForce;
         rearRightWheelCollider.motorTorque = verticalInput * data.motorForce;
+
+        float currentSpeed = rb.linearVelocity.magnitude;
+        if (currentSpeed < data.maxSpeed)
+        {
+            rearLeftWheelCollider.motorTorque = verticalInput * data.motorForce;
+            rearRightWheelCollider.motorTorque = verticalInput * data.motorForce;
+        }
+        else
+        {
+            rearLeftWheelCollider.motorTorque = 0f;
+            rearRightWheelCollider.motorTorque = 0f;
+        }
 
         // Consume fuel only when accelerating or reversing
         if (verticalInput != 0f && stats != null)

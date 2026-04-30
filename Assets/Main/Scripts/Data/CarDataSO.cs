@@ -14,6 +14,9 @@ public class CarDataSO : ScriptableObject
     public float speedForMinSteering = 30f;
     public float steerSmoothSpeed = 8f;
 
+    [Header("Speed")]
+    public float maxSpeed = 80f;
+
     [Header("Physics")]
     public float downforceAmount = 200f;
     public float antiRollForce = 8000f;

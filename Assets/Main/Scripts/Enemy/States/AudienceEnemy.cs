@@ -13,7 +13,7 @@ public class AudienceEnemy : MonoBehaviour
     [SerializeField] private Transform throwPoint;
     [SerializeField] private GameObject projectilePrefab;
     [SerializeField] private CarSensor sensor;
-
+    [SerializeField] private Animator animator;
     public Transform CarTarget { get; private set; }
     private Rigidbody carRigidbody;
     private bool carInRange;
@@ -51,9 +51,7 @@ public class AudienceEnemy : MonoBehaviour
         // Aiming → Cooldown: fires in transition
         fsm.AddTransition(new Transition<AudienceState>(
             AudienceState.Aiming,
-            AudienceState.Cooldown,
-            _ => true,
-            onTransition: _ => ThrowProjectile()));
+            AudienceState.Cooldown, _ => true, onTransition: _ => ThrowProjectile()));
 
         // Cooldown → Aiming or Idle depending on whether the car is still within range
         fsm.AddTransition(new Transition<AudienceState>(
@@ -77,24 +75,19 @@ public class AudienceEnemy : MonoBehaviour
         CarTarget = null;
         fsm?.Trigger(AudienceEvent.LostCar);
     }
+    public void PlayIdle() => animator?.Play("Idle");
+    public void PlayThrow() => animator?.SetTrigger("Throw");
     private void ThrowProjectile()
     {
         if (projectilePrefab == null || throwPoint == null || CarTarget == null) return;
 
-        // Predice posición futura del auto
-        Vector3 predictedPos = CarTarget.position;
+        PlayThrow();
+
+        Vector3 predictedPos = CarTarget.position + Vector3.up * 0.5f;
         if (carRigidbody != null)
             predictedPos += carRigidbody.linearVelocity * 1.2f;
 
         GameObject obj = Instantiate(projectilePrefab, throwPoint.position, Quaternion.identity);
         obj.GetComponent<ParabolicProjectile>()?.Launch(throwPoint.position, predictedPos, damage);
-    }
-    private void OnDrawGizmosSelected()
-    {
-        if (sensor != null)
-        {
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawWireSphere(transform.position, sensor.GetComponent<SphereCollider>().radius);
-        }
     }
 }

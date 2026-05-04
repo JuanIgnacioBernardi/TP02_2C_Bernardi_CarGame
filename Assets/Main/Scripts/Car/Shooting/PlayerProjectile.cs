@@ -41,10 +41,11 @@ public class PlayerProjectile : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         if (!launched || hasHit) return;
-        if (other.GetComponentInParent<CarController>() != null) return; 
+        if (other.GetComponentInParent<CarController>() != null) return;
 
-        AudienceEnemy enemy = other.GetComponentInParent<AudienceEnemy>();
-        if (enemy != null) ScoreSystem.Instance?.AddScore(100);
+        IDamageable damageable = other.GetComponentInParent<IDamageable>();
+        if (damageable != null && !damageable.IsDead)
+            damageable.TakeDamage(damage, transform.position);
 
         Impact(transform.position);
     }

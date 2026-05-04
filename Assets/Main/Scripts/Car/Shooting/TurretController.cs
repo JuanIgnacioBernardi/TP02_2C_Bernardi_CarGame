@@ -11,7 +11,7 @@ public class TurretController : MonoBehaviour
     [Header("Config")]
     [SerializeField] private float rotationSpeed = 10f;
     [SerializeField] private float minVerticalAngle = -20f;
-    [SerializeField] private float maxVerticalAngle = 60f;
+    [SerializeField] private float maxVerticalAngle = 80f;
     private void Update()
     {
         AimAtCameraDirection();

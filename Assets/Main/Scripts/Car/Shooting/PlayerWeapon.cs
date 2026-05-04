@@ -66,11 +66,15 @@ public class PlayerWeapon : MonoBehaviour
         Vector3 firePos = turret.GetFirePoint();
         Vector3 fireDir = turret.GetFireDirection();
 
-        if (!Physics.Raycast(firePos, fireDir, out RaycastHit hit, CurrentWeapon.range)) return;
+        Debug.DrawRay(firePos, fireDir * CurrentWeapon.range, Color.red, 1f);
 
-        AudienceEnemy enemy = hit.collider.GetComponentInParent<AudienceEnemy>();
-        if (enemy != null)
-            ScoreSystem.Instance?.AddScore(100);
+        if (!Physics.Raycast(firePos, fireDir, out RaycastHit hit, CurrentWeapon.range, hitLayer)) return;
+
+        Debug.Log($"Hit: {hit.collider.gameObject.name}");
+
+        IDamageable damageable = hit.collider.GetComponentInParent<IDamageable>();
+        if (damageable != null && !damageable.IsDead)
+            damageable.TakeDamage(CurrentWeapon.damage, hit.point);
 
         if (CurrentWeapon.impactEffect != null)
             Destroy(Instantiate(CurrentWeapon.impactEffect, hit.point,
@@ -109,7 +113,7 @@ public class PlayerWeapon : MonoBehaviour
         {
             // Laser: rect line from turret to max range or hit point
             Vector3 fireDir = turret.GetFireDirection();
-            Vector3 endPoint = Physics.Raycast(origin, fireDir, out RaycastHit hit, CurrentWeapon.range)
+            Vector3 endPoint = Physics.Raycast(origin, fireDir, out RaycastHit hit, CurrentWeapon.range, hitLayer)
                 ? hit.point
                 : origin + fireDir * CurrentWeapon.range;
 

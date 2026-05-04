@@ -79,9 +79,9 @@ public class PlayerRocket : MonoBehaviour
             if (hit.GetComponentInParent<CarController>() != null) continue;
             if (hit.GetComponentInParent<CarStats>() != null) continue;
 
-            AudienceEnemy enemy = hit.GetComponentInParent<AudienceEnemy>();
-            if (enemy != null)
-                ScoreSystem.Instance?.AddScore(100);
+            IDamageable damageable = hit.GetComponentInParent<IDamageable>();
+            if (damageable != null && !damageable.IsDead)
+                damageable.TakeDamage(damage, pos);
         }
         if (impactEffect != null)
             Destroy(Instantiate(impactEffect, pos, Quaternion.identity), 1.5f);

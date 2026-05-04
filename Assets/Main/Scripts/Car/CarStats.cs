@@ -1,12 +1,14 @@
 using UnityEngine;
 using System;
 
-public class CarStats : MonoBehaviour
+public class CarStats : MonoBehaviour, IDamageable
 {
     public CarDataSO config;
 
     [field: SerializeField] public float CurrentHealth { get; private set; }
     [field: SerializeField] public float CurrentFuel { get; private set; }
+
+    public bool IsDead => CurrentHealth <= 0f;
 
     public event Action<float, float> OnHealthChanged; // maxHealth, currentHealth
     public event Action<float, Vector3> OnDamageReceived;
@@ -23,10 +25,11 @@ public class CarStats : MonoBehaviour
     }
     public void TakeDamage(float amount, Vector3 position)
     {
+        if (IsDead) return;
         CurrentHealth = Mathf.Clamp(CurrentHealth - amount, 0f, config.maxHealth);
         OnHealthChanged?.Invoke(config.maxHealth, CurrentHealth);
         OnDamageReceived?.Invoke(amount, position);
-        if (CurrentHealth <= 0f) OnDeath?.Invoke();
+        if (IsDead) OnDeath?.Invoke();
     }
     public void Repair(float amount)
     {

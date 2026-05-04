@@ -2,8 +2,12 @@ using UnityEngine;
 using UnityHFSM;
 using Sensors;
 
-public class AudienceEnemy : MonoBehaviour
+public class AudienceEnemy : Character, IScoreable
 {
+    [Header("Score")]
+    [SerializeField] private int scoreValue = 100;
+    
+
     [Header("Config")]
     [SerializeField] private float windUpTime = 0.8f;
     [SerializeField] private float throwCooldown = 3f;
@@ -17,7 +21,7 @@ public class AudienceEnemy : MonoBehaviour
     public Transform CarTarget { get; private set; }
     private Rigidbody carRigidbody;
     private bool carInRange;
-
+    public int ScoreValue => scoreValue;
     private StateMachine<AudienceState, AudienceEvent> fsm;
 
     private void Start()
@@ -89,5 +93,15 @@ public class AudienceEnemy : MonoBehaviour
 
         GameObject obj = Instantiate(projectilePrefab, throwPoint.position, Quaternion.identity);
         obj.GetComponent<ParabolicProjectile>()?.Launch(throwPoint.position, predictedPos, damage);
+    }
+    protected override void OnDeath()
+    {
+        ScoreSystem.Instance?.AddScore(scoreValue);
+        if (sensor != null)
+        {
+            sensor.OnCarEnter -= OnCarEnter;
+            sensor.OnCarExit -= OnCarExit;
+        }
+        Destroy(gameObject);
     }
 }

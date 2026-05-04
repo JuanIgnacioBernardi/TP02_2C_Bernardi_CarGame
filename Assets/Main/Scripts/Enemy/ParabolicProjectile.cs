@@ -74,7 +74,15 @@ public class ParabolicProjectile : MonoBehaviour
         hasHit = true;
         launched = false;
         if (impactEffect != null)
-            Destroy(Instantiate(impactEffect, pos + Vector3.up * 0.3f, Quaternion.identity), 2f);
-        Destroy(gameObject);
+            Destroy(Instantiate(impactEffect, pos + Vector3.up * 0.3f, Quaternion.identity), 1.5f);
+
+        // Returns the projectile to the pool
+        PoolManager.Instance?.ReturnAudienceProjectile(this);
+    }
+    private void OnDisable()
+    {
+        launched = false;
+        hasHit = false;
+        elapsed = 0f;
     }
 }

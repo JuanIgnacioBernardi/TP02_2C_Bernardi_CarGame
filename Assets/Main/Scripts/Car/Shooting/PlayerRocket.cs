@@ -72,20 +72,39 @@ public class PlayerRocket : MonoBehaviour
         if (hasExploded) return;
         hasExploded = true;
 
-        // Radial damage and scoring
         Collider[] hits = Physics.OverlapSphere(pos, explosionRadius);
+        float closestDist = Mathf.Infinity;
+        IDamageable closestTarget = null;
+
         foreach (Collider hit in hits)
         {
             if (hit.GetComponentInParent<CarController>() != null) continue;
             if (hit.GetComponentInParent<CarStats>() != null) continue;
 
             IDamageable damageable = hit.GetComponentInParent<IDamageable>();
-            if (damageable != null && !damageable.IsDead)
-                damageable.TakeDamage(damage, pos);
+            if (damageable == null || damageable.IsDead) continue;
+
+            float dist = Vector3.Distance(pos, hit.transform.position);
+            if (dist < closestDist)
+            {
+                closestDist = dist;
+                closestTarget = damageable;
+            }
         }
+        closestTarget?.TakeDamage(damage, pos);
+
         if (impactEffect != null)
             Destroy(Instantiate(impactEffect, pos, Quaternion.identity), 1.5f);
 
-        Destroy(gameObject);
+        // Return to pool
+        PoolManager.Instance?.ReturnRocket(this);
+    }
+
+    // OnDisable To reset state when returned to pool
+    private void OnDisable()
+    {
+        isInitialized = false;
+        hasExploded = false;
+        currentPoint = 0;
     }
 }

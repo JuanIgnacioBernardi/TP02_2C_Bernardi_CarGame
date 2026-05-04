@@ -23,7 +23,6 @@ public class AudienceEnemy : Character, IScoreable
     private bool carInRange;
     public int ScoreValue => scoreValue;
     private StateMachine<AudienceState, AudienceEvent> fsm;
-
     private void Start()
     {
         if (sensor != null)
@@ -83,7 +82,7 @@ public class AudienceEnemy : Character, IScoreable
     public void PlayThrow() => animator?.SetTrigger("Throw");
     private void ThrowProjectile()
     {
-        if (projectilePrefab == null || throwPoint == null || CarTarget == null) return;
+        if (throwPoint == null || CarTarget == null) return;
 
         PlayThrow();
 
@@ -91,8 +90,13 @@ public class AudienceEnemy : Character, IScoreable
         if (carRigidbody != null)
             predictedPos += carRigidbody.linearVelocity * 1.2f;
 
-        GameObject obj = Instantiate(projectilePrefab, throwPoint.position, Quaternion.identity);
-        obj.GetComponent<ParabolicProjectile>()?.Launch(throwPoint.position, predictedPos, damage);
+        // Use object pooling to get a projectile instance
+        ParabolicProjectile proj = PoolManager.Instance?.GetAudienceProjectile();
+        if (proj == null) return;
+
+        proj.transform.position = throwPoint.position;
+        proj.transform.rotation = Quaternion.identity;
+        proj.Launch(throwPoint.position, predictedPos, damage);
     }
     protected override void OnDeath()
     {

@@ -83,17 +83,21 @@ public class PlayerWeapon : MonoBehaviour
     // shoot with a projectile that follows a parabolic trajectory, instantiates a prefab
     private void FireRocket()
     {
-        if (CurrentWeapon.projectilePrefab == null) return;
-
         Vector3 origin = turret.GetFirePoint();
         Vector3 target = GetTargetPoint(origin);
         Vector3[] points = CalculateTrajectory(origin, target);
 
         Vector3 initialDir = (points[1] - points[0]).normalized;
-        GameObject obj = Instantiate(CurrentWeapon.projectilePrefab, origin, Quaternion.LookRotation(initialDir));
+
+        // Use object pooling to get a rocket instance
+        PlayerRocket rocket = PoolManager.Instance?.GetRocket();
+        if (rocket == null) return;
+
+        rocket.transform.position = origin;
+        rocket.transform.rotation = Quaternion.LookRotation(initialDir);
 
         Collider[] carColliders = GetComponentsInChildren<Collider>();
-        obj.GetComponent<PlayerRocket>()?.Initialize(points, rocketSpeed, CurrentWeapon.damage, carColliders);
+        rocket.Initialize(points, rocketSpeed, CurrentWeapon.damage, carColliders);
     }
     private void UpdateTrajectoryPreview()
     {

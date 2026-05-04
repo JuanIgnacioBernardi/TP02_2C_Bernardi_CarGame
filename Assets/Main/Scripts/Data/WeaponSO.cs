@@ -11,6 +11,5 @@ public class WeaponSO : ScriptableObject
     public float cooldown = 0.5f;
     public float range = 100f;
     public float projectileForce = 800f;
-    public GameObject projectilePrefab;
     public GameObject impactEffect;
 }

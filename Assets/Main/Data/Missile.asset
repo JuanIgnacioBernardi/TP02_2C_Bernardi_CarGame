@@ -18,5 +18,4 @@ MonoBehaviour:
   cooldown: 1
   range: 100
   projectileForce: 3000
-  projectilePrefab: {fileID: 949239210688686510, guid: ee5369c9564730a43a9c15ae07823a7e, type: 3}
   impactEffect: {fileID: 0}

@@ -46,8 +46,9 @@ public class CheckpointManager : MonoBehaviour
             nextCheckpoint = 0;
             currentLap++;
             OnLapCompleted?.Invoke(currentLap, totalLaps);
-            if (currentLap >= totalLaps)
-                OnRaceFinished?.Invoke();
+
+            if (GameManager.Instance?.CurrentMode == GameMode.Competition && currentLap >= totalLaps)
+                GameManager.Instance?.TriggerRaceFinished();
         }
     }
     public void RespawnAtLastCheckpoint(Rigidbody rb)

@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa8c1a1b03fe8c346ac49ce0542dd1f0, type: 3}
   m_Name: Raycast
   m_EditorClassIdentifier: Assembly-CSharp::WeaponSO
+  fireSound: {fileID: 8300000, guid: db55a24509b164042a00f39a7a4f26fc, type: 3}
   weaponName: Default
   type: 0
   damage: 25
   cooldown: 0.3
   range: 100
   projectileForce: 800
-  projectilePrefab: {fileID: 0}
   impactEffect: {fileID: 0}

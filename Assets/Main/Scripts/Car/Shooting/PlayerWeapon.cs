@@ -63,6 +63,8 @@ public class PlayerWeapon : MonoBehaviour
     // instant shoot
     private void FireRaycast()
     {
+        AudioManager.Instance?.PlaySFX(CurrentWeapon.fireSound);
+
         Vector3 firePos = turret.GetFirePoint();
         Vector3 fireDir = turret.GetFireDirection();
 
@@ -83,6 +85,7 @@ public class PlayerWeapon : MonoBehaviour
     // shoot with a projectile that follows a parabolic trajectory, instantiates a prefab
     private void FireRocket()
     {
+        AudioManager.Instance?.PlaySFX(CurrentWeapon.fireSound);
         Vector3 origin = turret.GetFirePoint();
         Vector3 target = GetTargetPoint(origin);
         Vector3[] points = CalculateTrajectory(origin, target);

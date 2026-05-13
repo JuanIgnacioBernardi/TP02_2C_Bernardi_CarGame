@@ -3,6 +3,9 @@ using UnityEngine.UI;
 using TMPro;
 public class WinScreen : MonoBehaviour
 {
+    [Header("Sounds")]
+    public AudioClip winSfx;
+
     [SerializeField] private GameObject panel;
     [SerializeField] private TextMeshProUGUI scoreText;
     [SerializeField] private Button mainMenuBtn;
@@ -23,6 +26,7 @@ public class WinScreen : MonoBehaviour
     private void ShowWinScreen()
     {
         AudioManager.Instance?.StopAll();
+        AudioManager.Instance?.PlaySFX(winSfx);
         panel.SetActive(true);
         Time.timeScale = 0f;
         Cursor.lockState = CursorLockMode.None;

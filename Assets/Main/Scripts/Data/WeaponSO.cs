@@ -5,6 +5,9 @@ public enum WeaponType { Raycast, Projectile }
 [CreateAssetMenu(fileName = "WeaponSO", menuName = "Scriptable Objects/WeaponSO")]
 public class WeaponSO : ScriptableObject
 {
+    [Header("Audio")]
+    public AudioClip fireSound;
+
     public string weaponName = "Default";
     public WeaponType type;
     public float damage = 25f;

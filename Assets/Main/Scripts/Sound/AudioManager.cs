@@ -13,10 +13,6 @@ public class AudioManager : MonoBehaviour
     public AudioClip backgroundMusic;
 
     [Header("SFX")]
-    public AudioClip winSfx;
-    public AudioClip loseSfx;
-    public AudioClip laserShootSfx;
-    public AudioClip launcherShootSfx;
     public AudioClip enemyAttackSfx;
     public AudioClip enemyDeathSfx;
     public AudioClip playerDamageSfx;

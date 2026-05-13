@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa8c1a1b03fe8c346ac49ce0542dd1f0, type: 3}
   m_Name: Missile
   m_EditorClassIdentifier: Assembly-CSharp::WeaponSO
+  fireSound: {fileID: 8300000, guid: ab8635b1d6cd5e24ab3a3afa1c493b79, type: 3}
   weaponName: Default
   type: 1
   damage: 50

@@ -4,6 +4,9 @@ using TMPro;
 using System.Collections;
 public class DeathScreen : MonoBehaviour
 {
+    [Header("Sounds")]
+    public AudioClip deathSfx;
+
     [SerializeField] private GameObject panel;
     [SerializeField] private TextMeshProUGUI scoreText;
     [SerializeField] private Button mainMenuBtn;
@@ -30,6 +33,7 @@ public class DeathScreen : MonoBehaviour
         yield return new WaitForSeconds(0.9f);
 
         AudioManager.Instance?.StopAll();
+        AudioManager.Instance?.PlaySFX(deathSfx);
         panel.SetActive(true);
         Time.timeScale = 0f;
         Cursor.lockState = CursorLockMode.None;

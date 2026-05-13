@@ -22,6 +22,7 @@ public class WinScreen : MonoBehaviour
     }
     private void ShowWinScreen()
     {
+        AudioManager.Instance?.StopAll();
         panel.SetActive(true);
         Time.timeScale = 0f;
         Cursor.lockState = CursorLockMode.None;

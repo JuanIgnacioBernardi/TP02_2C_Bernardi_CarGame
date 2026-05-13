@@ -1,77 +1,146 @@
 using UnityEngine;
 
-[RequireComponent(typeof(AudioSource))]
 public class CarEngineAudio : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] private CarStats carStats;
+    [SerializeField] private CarController carController;
+    [SerializeField] private CarDataSO carData;
 
-    [Header("Engine Audio")]
-    [SerializeField] private AudioClip engineLoop;  
-    [SerializeField] private float minPitch = 0.6f; 
-    [SerializeField] private float maxPitch = 2.2f; 
-    [SerializeField] private float pitchSmoothSpeed = 3f;
+    [Header("Clips")]
+    [SerializeField] private AudioClip startup;
+    [SerializeField] private AudioClip idleClip;
+    [SerializeField] private AudioClip lowClip;
+    [SerializeField] private AudioClip medClip;
+    [SerializeField] private AudioClip highClip;
+    [SerializeField] private AudioClip maxRpmClip;
 
-    [Header("Reference Speed")]
-    [SerializeField] private float maxSpeed = 20f;    
+    [Header("Transition")]
+    [SerializeField] private float crossfadeSpeed = 2f;
+    [SerializeField] private float hysteresis = 5f;
 
-    private AudioSource _engineSource;
-    private Rigidbody _rb;
-    private float _targetPitch;
+    private float lowThreshold;
+    private float medThreshold;
+    private float highThreshold;
+    private float maxRpmThreshold;
 
+    private AudioSource _sourceA;
+    private AudioSource _sourceB;
+    private bool _usingA = true;
+    private AudioClip _currentClip;
+    private bool _ready = false;
     private void Awake()
     {
-        _engineSource = GetComponent<AudioSource>();
-        _rb = GetComponent<Rigidbody>();
+        carController = GetComponent<CarController>();
 
-        _engineSource.clip = engineLoop;
-        _engineSource.loop = true;
-        _engineSource.playOnAwake = false;
+        _sourceA = gameObject.AddComponent<AudioSource>();
+        _sourceB = gameObject.AddComponent<AudioSource>();
+
+        ConfigSource(_sourceA);
+        ConfigSource(_sourceB);
+    }
+    private void ConfigSource(AudioSource src)
+    {
+        src.loop = true;
+        src.playOnAwake = false;
+        src.volume = 0f;
+        src.spatialBlend = 1f;
     }
     private void Start()
     {
-        if (engineLoop == null) return;
-        _engineSource.pitch = minPitch;
-        _engineSource.Play();
+        if (carData != null)
+        {
+            float maxKmh = carData.maxSpeed * 3.6f;
+            lowThreshold = maxKmh * 0.20f;
+            medThreshold = maxKmh * 0.40f;
+            highThreshold = maxKmh * 0.65f;
+            maxRpmThreshold = maxKmh * 0.85f;
+        }
+        else
+        {
+            lowThreshold = 40f;
+            medThreshold = 80f;
+            highThreshold = 130f;
+            maxRpmThreshold = 170f;
+        }
+
+        if (startup != null)
+        {
+            var startupSrc = gameObject.AddComponent<AudioSource>();
+            startupSrc.loop = false;
+            startupSrc.clip = startup;
+            startupSrc.volume = 1f;
+            startupSrc.Play();
+            Destroy(startupSrc, startup.length);
+            Invoke(nameof(StartEngine), startup.length);
+        }
+        else
+        {
+            StartEngine();
+        }
+    }
+    private void StartEngine()
+    {
+        _ready = true;
+        CrossfadeTo(idleClip, instant: true);
     }
     private void Update()
     {
-        if (!carStats.HasFuel() || carStats.IsDead)
+        if (!_ready) return;
+
+        float speedKmh = carController.CurrentSpeed * 3.6f;
+        AudioClip target = GetClipForSpeed(speedKmh);
+
+        if (target != _currentClip)
+            CrossfadeTo(target);
+
+        AudioSource active = _usingA ? _sourceA : _sourceB;
+        AudioSource inactive = _usingA ? _sourceB : _sourceA;
+
+        active.volume = Mathf.MoveTowards(active.volume, 1f, Time.deltaTime * crossfadeSpeed);
+        inactive.volume = Mathf.MoveTowards(inactive.volume, 0f, Time.deltaTime * crossfadeSpeed);
+    }
+    private AudioClip GetClipForSpeed(float speedKmh)
+    {
+        if (_currentClip == idleClip)
         {
-            FadeOutEngine();
-            return;
+            if (speedKmh > lowThreshold + hysteresis) return lowClip;
+        }
+        else if (_currentClip == lowClip)
+        {
+            if (speedKmh < lowThreshold - hysteresis) return idleClip;
+            if (speedKmh > medThreshold + hysteresis) return medClip;
+        }
+        else if (_currentClip == medClip)
+        {
+            if (speedKmh < medThreshold - hysteresis) return lowClip;
+            if (speedKmh > highThreshold + hysteresis) return highClip;
+        }
+        else if (_currentClip == highClip)
+        {
+            if (speedKmh < highThreshold - hysteresis) return medClip;
+            if (speedKmh > maxRpmThreshold + hysteresis) return maxRpmClip;
+        }
+        else if (_currentClip == maxRpmClip)
+        {
+            if (speedKmh < maxRpmThreshold - hysteresis) return highClip;
         }
 
-        UpdateEnginePitch();
+        return _currentClip;
     }
-    private void UpdateEnginePitch()
+    private void CrossfadeTo(AudioClip clip, bool instant = false)
     {
-        // Current normalized speed between 0 and 1
-        float speed = _rb != null ? _rb.linearVelocity.magnitude : 0f;
-        float speedNormalized = Mathf.Clamp01(speed / maxSpeed);
+        _currentClip = clip;
+        _usingA = !_usingA;
 
-        // Target pitch based on speed
-        _targetPitch = Mathf.Lerp(minPitch, maxPitch, speedNormalized);
-
-        // Smooth the pitch change so that it is not abrupt
-        _engineSource.pitch = Mathf.Lerp(
-            _engineSource.pitch,
-            _targetPitch,
-            Time.deltaTime * pitchSmoothSpeed
-        );
-        // Reactivate if it was off
-        if (!_engineSource.isPlaying)
-            _engineSource.Play();
+        AudioSource next = _usingA ? _sourceA : _sourceB;
+        next.clip = clip;
+        next.volume = instant ? 1f : 0f;
+        next.Play();
     }
-    private void FadeOutEngine()
+    public void StopEngine()
     {
-        // The pitch gradually decreases when it dies or runs out of fuel.
-        _engineSource.pitch = Mathf.Lerp(
-            _engineSource.pitch,
-            minPitch * 0.5f,
-            Time.deltaTime * pitchSmoothSpeed
-        );
-        if (_engineSource.pitch <= minPitch * 0.55f)
-            _engineSource.Stop();
+        _ready = false;
+        _sourceA.Stop();
+        _sourceB.Stop();
     }
 }

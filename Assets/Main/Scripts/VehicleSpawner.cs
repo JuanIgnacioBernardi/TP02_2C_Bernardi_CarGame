@@ -38,6 +38,10 @@ public class VehicleSpawner : MonoBehaviour
         if (ui != null && controller != null)
             ui.SetCarController(controller);
 
+        stats.OnDeath += () =>
+        {
+            car.GetComponentInChildren<CarEngineAudio>()?.StopEngine();
+        };
         CheckpointManager.Instance?.SetCar(stats);
     }
 }

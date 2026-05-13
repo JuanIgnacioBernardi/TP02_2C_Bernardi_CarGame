@@ -29,6 +29,7 @@ public class DeathScreen : MonoBehaviour
     {
         yield return new WaitForSeconds(0.9f);
 
+        AudioManager.Instance?.StopAll();
         panel.SetActive(true);
         Time.timeScale = 0f;
         Cursor.lockState = CursorLockMode.None;

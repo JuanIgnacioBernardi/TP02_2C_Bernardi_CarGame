@@ -25,6 +25,9 @@ public class AudioManager : MonoBehaviour
     [Header("UI")]
     public AudioClip buttonUISfx;
     public AudioClip hoverUISfx;
+
+    [Header("-------- Mixer Groups --------")]
+    public UnityEngine.Audio.AudioMixerGroup SfxMixerGroup;
     private void Awake()
     {
         // Destroying duplicates and setting up singleton pattern

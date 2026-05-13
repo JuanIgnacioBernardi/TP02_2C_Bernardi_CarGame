@@ -22,8 +22,6 @@ public class MainMenu : MonoBehaviour
     private AudioManager audioManager;
     private void Awake()
     {
-        audioManager = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioManager>();
-
         playBtn.onClick.AddListener(PlayGame);
         settingsBtn.onClick.AddListener(OpenSettings);
         quitBtn.onClick.AddListener(QuitGame);
@@ -57,7 +55,7 @@ public class MainMenu : MonoBehaviour
     }
     public void CloseSettings()
     {
-        audioManager.PlayUI(audioManager.ButtonUI);
+        AudioManager.Instance.PlayUI(AudioManager.Instance.buttonUISfx);
         settingsCanvas.SetActive(false);
         mainCanvas.SetActive(true);
     }
@@ -78,7 +76,7 @@ public class MainMenu : MonoBehaviour
 
         entry.callback.AddListener
             (
-                (eventData) => { audioManager.PlayUI(audioManager.HoverUi); }
+                (eventData) => { AudioManager.Instance.PlayUI(AudioManager.Instance.hoverUISfx); ; }
             );
 
         trigger.triggers.Add(entry);

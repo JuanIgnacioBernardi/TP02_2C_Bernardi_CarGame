@@ -38,14 +38,17 @@ public class ParabolicProjectile : MonoBehaviour
 
         if (t >= 1f)
         {
-            Collider[] hits = Physics.OverlapSphere(transform.position, 2f);
-            foreach (Collider hit in hits)
+            if (!hasHit)
             {
-                CarStats stats = hit.GetComponentInParent<CarStats>();
-                if (stats != null)
+                Collider[] hits = Physics.OverlapSphere(transform.position, 2f);
+                foreach (Collider hit in hits)
                 {
-                    stats.TakeDamage(damage, transform.position);
-                    break;
+                    CarStats stats = hit.GetComponentInParent<CarStats>();
+                    if (stats != null)
+                    {
+                        stats.TakeDamage(damage, transform.position);
+                        break;
+                    }
                 }
             }
             Impact(transform.position);

@@ -18,19 +18,24 @@ public class TurretController : MonoBehaviour
     }
     private void AimAtCameraDirection()
     {
+        if (playerCamera == null) return;
+
         Vector3 targetPoint = playerCamera.transform.position + playerCamera.transform.forward * 100f;
 
         Vector3 dirToTarget = targetPoint - horizontalPivot.position;
         dirToTarget.y = 0f;
         if (dirToTarget != Vector3.zero)
         {
-            Quaternion targetHRot = Quaternion.LookRotation(dirToTarget);
-            horizontalPivot.rotation = Quaternion.Slerp(
-                horizontalPivot.rotation,
-                targetHRot,
+            Quaternion worldRot = Quaternion.LookRotation(dirToTarget);
+            Quaternion localRot = Quaternion.Inverse(horizontalPivot.parent.rotation) * worldRot;
+            horizontalPivot.localRotation = Quaternion.Slerp(
+                horizontalPivot.localRotation,
+                localRot,
                 rotationSpeed * Time.deltaTime);
         }
-        Vector3 localDir = verticalPivot.parent.InverseTransformDirection(targetPoint - verticalPivot.position);
+
+        // Vertical — igual que antes
+        Vector3 localDir = verticalPivot.parent.InverseTransformPoint(targetPoint);
         float angleX = Mathf.Atan2(localDir.y, localDir.z) * Mathf.Rad2Deg;
         angleX = Mathf.Clamp(angleX, minVerticalAngle, maxVerticalAngle);
         verticalPivot.localRotation = Quaternion.Slerp(
@@ -40,4 +45,5 @@ public class TurretController : MonoBehaviour
     }
     public Vector3 GetFirePoint() => firePoint.position;
     public Vector3 GetFireDirection() => firePoint.forward;
+    public void SetCamera(Camera cam) => playerCamera = cam;
 }

@@ -25,7 +25,11 @@ public class CarStats : MonoBehaviour, IDamageable
     }
     public void TakeDamage(float amount, Vector3 position)
     {
-        if (IsDead) return;
+        if (IsDead)
+        {
+            OnDeath?.Invoke();
+            GameManager.Instance?.TriggerGameOver();
+        }
         CurrentHealth = Mathf.Clamp(CurrentHealth - amount, 0f, config.maxHealth);
         OnHealthChanged?.Invoke(config.maxHealth, CurrentHealth);
         OnDamageReceived?.Invoke(amount, position);

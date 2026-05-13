@@ -9,17 +9,16 @@ public class CheckpointManager : MonoBehaviour
     [SerializeField] private int totalLaps = 3;
 
     public event Action<int, int> OnLapCompleted;
-    public event Action OnRaceFinished;
 
     private int nextCheckpoint;
     private int currentLap;
-
     public int CurrentLap => currentLap;
     public int TotalLaps => totalLaps;
 
     private Vector3 lastCheckpointPosition;
     private Vector3 lastCarForward;
 
+    private CarStats carStats;
     private void Awake()
     {
         Instance = this;
@@ -34,10 +33,10 @@ public class CheckpointManager : MonoBehaviour
         if (index != nextCheckpoint) return;
 
         lastCheckpointPosition = checkpoints[index].transform.position;
+        lastCarForward = checkpoints[index].transform.forward;
 
-        CarStats car = FindFirstObjectByType<CarStats>();
-        if (car != null)
-            lastCarForward = car.transform.forward;
+        if (carStats != null)
+            lastCarForward = carStats.transform.forward;
 
         nextCheckpoint++;
 
@@ -62,4 +61,5 @@ public class CheckpointManager : MonoBehaviour
         if (flatForward == Vector3.zero) flatForward = Vector3.forward;
         rb.transform.rotation = Quaternion.LookRotation(flatForward);
     }
+    public void SetCar(CarStats car) => carStats = car;
 }

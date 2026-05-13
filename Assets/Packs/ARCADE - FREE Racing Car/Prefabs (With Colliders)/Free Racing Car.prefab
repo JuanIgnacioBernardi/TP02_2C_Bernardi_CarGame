@@ -389,7 +389,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 07f44fe3e9c462146a7769b976c50ec4, type: 2}
+  - {fileID: 2100000, guid: 74196cf5d503c14488ae1ef1dbc6c9a4, type: 2}
   - {fileID: 2100000, guid: ab035d7682921704a9015ac353311d57, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
@@ -516,6 +516,8 @@ GameObject:
   m_Component:
   - component: {fileID: 2792218741957914664}
   - component: {fileID: 7495443279060062592}
+  - component: {fileID: 436514811816267250}
+  - component: {fileID: 3337809467636416195}
   m_Layer: 0
   m_Name: Free Racing Car
   m_TagString: Untagged
@@ -531,7 +533,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3311311803080157842}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -2, y: 0, z: 4}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -568,6 +570,52 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &436514811816267250
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3311311803080157842}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1777e6b28e039084b8012de83e98e29c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerWeapon
+  weapons:
+  - {fileID: 11400000, guid: 80a700728e88f44438c02c690abab9ce, type: 2}
+  - {fileID: 11400000, guid: 9b135ac3870ddd643a1a6c8167dac24a, type: 2}
+  turret: {fileID: 0}
+  playerCamera: {fileID: 0}
+  rocketSpeed: 25
+  trajectoryResolution: 30
+  maxRange: 80
+  hitLayer:
+    serializedVersion: 2
+    m_Bits: 512
+  laserWidth: 0.05
+  laserMaterial: {fileID: 0}
+--- !u!114 &3337809467636416195
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3311311803080157842}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f59119e8e57ac7b498a2d4f47a46c460, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CarController
+  frontLeftWheelCollider: {fileID: 2716459193614891142}
+  frontRightWheelCollider: {fileID: 4795950753765878369}
+  rearLeftWheelCollider: {fileID: 3145262460232535540}
+  rearRightWheelCollider: {fileID: 1057494946909100755}
+  frontLeftWheelTransform: {fileID: 3794951908810334882}
+  frontRightWheelTransform: {fileID: 948405438201742482}
+  rearLeftWheelTransform: {fileID: 9188640840458259854}
+  rearRightWheelTransform: {fileID: 28636839611146925}
+  data: {fileID: 11400000, guid: 9dd91cfe72328b84eb3ac917ab4c4031, type: 2}
 --- !u!1 &3962000127133956386
 GameObject:
   m_ObjectHideFlags: 0

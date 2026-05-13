@@ -61,6 +61,11 @@ public class MainMenu : MonoBehaviour
         settingsCanvas.SetActive(false);
         mainCanvas.SetActive(true);
     }
+    public void GoToMain()
+    {
+        main.SetActive(true);
+        gamemodes.SetActive(false);
+    }
     private void AddHoverSound(Button button)
     {
         EventTrigger trigger = button.gameObject.GetComponent<EventTrigger>();

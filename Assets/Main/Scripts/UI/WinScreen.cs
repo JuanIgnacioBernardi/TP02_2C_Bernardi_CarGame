@@ -1,16 +1,38 @@
 using UnityEngine;
-
+using UnityEngine.UI;
+using TMPro;
 public class WinScreen : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    [SerializeField] private GameObject panel;
+    [SerializeField] private TextMeshProUGUI scoreText;
+    [SerializeField] private Button mainMenuBtn;
+    private void Start()
     {
-        
-    }
+        panel.SetActive(false);
+        mainMenuBtn.onClick.AddListener(GoToMainMenu);
 
-    // Update is called once per frame
-    void Update()
+        if (GameManager.Instance != null)
+            GameManager.Instance.OnRaceFinished += ShowWinScreen;
+    }
+    private void OnDestroy()
     {
-        
+        mainMenuBtn.onClick.RemoveAllListeners();
+        if (GameManager.Instance != null)
+            GameManager.Instance.OnRaceFinished -= ShowWinScreen;
+    }
+    private void ShowWinScreen()
+    {
+        panel.SetActive(true);
+        Time.timeScale = 0f;
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+
+        if (scoreText != null)
+            scoreText.text = "Score: " + ScoreSystem.Instance?.CurrentScore;
+    }
+    private void GoToMainMenu()
+    {
+        Time.timeScale = 1f;
+        GameManager.Instance?.LoadMainMenu();
     }
 }

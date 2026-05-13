@@ -89,4 +89,13 @@ public class CameraFollow : MonoBehaviour
 
         _cam.fieldOfView = Mathf.SmoothDamp(_cam.fieldOfView, targetFOV, ref _currentFOVVelocity, cameraData.fovSmoothTime);
     }
+    public void SetTarget(Transform newTarget, Transform newCockpitPoint = null)
+    {
+        target = newTarget;
+        if (newCockpitPoint != null)
+            cockpitPoint = newCockpitPoint;
+
+        _targetRb = target.GetComponent<Rigidbody>();
+        _yaw = target.eulerAngles.y;
+    }
 }

@@ -183,5 +183,6 @@ public class PlayerWeapon : MonoBehaviour
         }
         return ray.origin + ray.direction * maxRange;
     }
+    public void SetCamera(Camera cam) => playerCamera = cam;
     public WeaponSO GetCurrentWeapon() => CurrentWeapon;
 }

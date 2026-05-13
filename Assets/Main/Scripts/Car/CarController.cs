@@ -73,6 +73,16 @@ public class CarController : MonoBehaviour
     }
     private void HandleMotor()
     {
+        if (stats != null && !stats.HasFuel())
+        {
+            rearLeftWheelCollider.motorTorque = 0f;
+            rearRightWheelCollider.motorTorque = 0f;
+            frontLeftWheelCollider.brakeTorque = data.engineBraking;
+            frontRightWheelCollider.brakeTorque = data.engineBraking;
+            rearLeftWheelCollider.brakeTorque = data.engineBraking;
+            rearRightWheelCollider.brakeTorque = data.engineBraking;
+            return;
+        }
         rearLeftWheelCollider.motorTorque = verticalInput * data.motorForce;
         rearRightWheelCollider.motorTorque = verticalInput * data.motorForce;
 

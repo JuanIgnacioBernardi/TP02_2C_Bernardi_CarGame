@@ -13,12 +13,16 @@ MonoBehaviour:
   m_Name: CarDataSO
   m_EditorClassIdentifier: Assembly-CSharp::CarDataSO
   motorForce: 1500
-  brakeForce: 3000
-  engineBraking: 300
+  brakeForce: 1500
+  engineBraking: 800
   maxSteeringAngle: 45
-  minSteeringAngle: 10
-  speedForMinSteering: 30
+  minSteeringAngle: 5
+  speedForMinSteering: 15
   steerSmoothSpeed: 8
+  maxSpeed: 80
   downforceAmount: 100
   antiRollForce: 5000
   centerOfMassOffset: {x: 0, y: -0.5, z: 0}
+  maxHealth: 100
+  maxFuel: 100
+  fuelConsumptionRate: 1

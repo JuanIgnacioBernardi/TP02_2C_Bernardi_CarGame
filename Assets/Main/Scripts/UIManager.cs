@@ -28,9 +28,6 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI lapText;
     private void Awake()
     {
-        stats = FindFirstObjectByType<CarStats>();
-        carController = FindFirstObjectByType<CarController>();
-
         if (stats != null)
         {
             stats.OnHealthChanged += SetHealthTarget;
@@ -99,7 +96,34 @@ public class UIManager : MonoBehaviour
     }
     private void UpdateLap(int current, int total)
     {
-        if (lapText != null)
+        if (lapText == null) return;
+
+        if (GameManager.Instance?.CurrentMode == GameMode.Endless)
+            lapText.text = $"Vuelta: {current}";
+        else
             lapText.text = $"Vuelta: {current} / {total}";
+    }
+    public void SetCarStats(CarStats newStats)
+    {
+        if (stats != null)
+        {
+            stats.OnHealthChanged -= SetHealthTarget;
+            stats.OnFuelChanged -= SetFuelTarget;
+        }
+        stats = newStats;
+        if (stats != null)
+        {
+            stats.OnHealthChanged += SetHealthTarget;
+            stats.OnFuelChanged += SetFuelTarget;
+
+            SetHealthTarget(stats.config.maxHealth, stats.CurrentHealth);
+            SetFuelTarget(stats.config.maxFuel, stats.CurrentFuel);
+            if (fillHealthBar != null) fillHealthBar.fillAmount = targetHealthFill;
+            if (fillTankBar != null) fillTankBar.fillAmount = targetFuelFill;
+        }
+    }
+    public void SetCarController(CarController controller)
+    {
+        carController = controller;
     }
 }
